@@ -3,20 +3,23 @@ using System.Collections;
 
 public class ActivateAllDisplays : MonoBehaviour
 {
+    private void Awake()
+    {
+        GameObject[] objs = GameObject.FindGameObjectsWithTag("ScreenActivation");
+
+        if(objs.Length > 1)
+        {
+            Destroy(gameObject);
+
+            DontDestroyOnLoad(gameObject);
+        }
+    }
     void Start()
     {
-        Debug.Log("displays connected: " + Display.displays.Length);
-        // Display.displays[0] is the primary, default display and is always ON, so start at index 1.
-        // Check if additional displays are available and activate each.
-
-        for (int i = 1; i < Display.displays.Length; i++)
+        foreach(var disp in Display.displays)
         {
-            Display.displays[i].Activate();
+            disp.Activate(disp.systemWidth, disp.systemHeight, 60);
         }
     }
 
-    void Update()
-    {
-
-    }
 }
