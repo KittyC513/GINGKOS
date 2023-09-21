@@ -10,6 +10,7 @@ public class AssignMonitor : MonoBehaviour
         Camera cam = GetComponentInChildren<Camera>();
         cam.targetDisplay = 1;
     }
+
     void Start()
     {
         
