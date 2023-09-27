@@ -543,10 +543,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementControl: {fileID: -6958663446336538312, guid: 77285a14f47ab8d4bb242e22f92f5a37, type: 3}
   jumpControl: {fileID: -7477935379432534044, guid: 77285a14f47ab8d4bb242e22f92f5a37, type: 3}
-  playerSpeed: 2
+  playerWalkSpeed: 8.5
+  playerRunSpeed: 12
   jumpHeight: 1
   gravityValue: -9.81
   rotationSpeed: 4
+  timeToWalkSpeed: 0.15
+  timeToZero: 0.05
+  timeToRunSpeed: 0.2
+  currentSpeed: 0
 --- !u!1 &5207812550778468439
 GameObject:
   m_ObjectHideFlags: 0
@@ -1077,7 +1082,7 @@ MonoBehaviour:
   m_TransparentLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_MinimumDistanceFromTarget: 0.1
+  m_MinimumDistanceFromTarget: 0.4
   m_AvoidObstacles: 1
   m_DistanceLimit: 0
   m_MinimumOcclusionTime: 0

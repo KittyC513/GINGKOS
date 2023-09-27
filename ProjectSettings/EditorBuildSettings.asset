@@ -8,4 +8,5 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MultiDisplay.unity
     guid: c5179a4ca250698479361fa77a397a3d
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 2e6732f33277444478b78589b02eafc0, type: 2}
