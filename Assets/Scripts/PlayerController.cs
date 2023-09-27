@@ -46,11 +46,14 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        GroundDetect();
         Move();
         Jump();
+    }
+
+    private void FixedUpdate()
+    {
+        GroundDetect();
         Rotate();
-        
     }
 
     #region Ground Check
