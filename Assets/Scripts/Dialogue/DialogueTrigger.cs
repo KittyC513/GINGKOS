@@ -5,7 +5,6 @@ using Yarn.Unity;
 
 public class DialogueTrigger : MonoBehaviour
 {
-    RaycastHit HitInfo;
     public DialogueRunner dialogueRunner;
     public bool hasTalkedBefore = false;
 
@@ -19,15 +18,6 @@ public class DialogueTrigger : MonoBehaviour
         else
         {
             Repeat();
-        }
-    }
-
-    public void StartDialogue()
-    {
-        if (Input.GetKeyDown(KeyCode.E) && hasTalkedBefore == false)
-        {
-            dialogueRunner.StartDialogue("WhatPromotion");
-            hasTalkedBefore = true;
         }
     }
 
