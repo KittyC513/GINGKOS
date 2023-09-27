@@ -16,11 +16,14 @@ public class PlayerController : MonoBehaviour
     private float jumpHeight = 1.0f;
     [SerializeField]
     private float gravityValue = -9.81f;
+    [SerializeField]
+    private float rotationSpeed = 4;
 
     private CharacterController controller;
     private Vector3 playerVelocity;
     private bool groundedPlayer;
     private Transform player1Cam;
+    Vector2 movement;
 
     private void OnEnable()
     {
@@ -46,6 +49,7 @@ public class PlayerController : MonoBehaviour
         GroundDetect();
         Move();
         Jump();
+        Rotate();
         
     }
 
@@ -65,7 +69,7 @@ public class PlayerController : MonoBehaviour
     void Move()
     {
         //access new input system, add xbox input 
-        Vector2 movement = movementControl.action.ReadValue<Vector2>();
+        movement = movementControl.action.ReadValue<Vector2>();
         Vector3 move = new Vector3(movement.x, 0, movement.y);
        
         move = player1Cam.forward * move.z + player1Cam.right * move.x;
@@ -96,5 +100,15 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
-
+    #region Player facing direction
+    void Rotate()
+    {
+        if(movement!= Vector2.zero)
+        {
+            float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + player1Cam.eulerAngles.y;
+            Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
+        }
+    }
+    #endregion
 }
