@@ -166,6 +166,10 @@ public class PlayerController : MonoBehaviour
 
         controller.Move(transform.forward * Time.deltaTime * currentSpeed);
 
+        if (move != Vector3.zero)
+        {
+            transform.forward = move;
+        }
 
     }
 

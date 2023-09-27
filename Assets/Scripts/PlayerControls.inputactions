@@ -101,7 +101,7 @@
                 {
                     "name": "Xbox JoyStick",
                     "id": "4b9b55e7-278b-4d2a-a6b6-04876c0aac1f",
-                    "path": "2DVector",
+                    "path": "2DVector(mode=2)",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
