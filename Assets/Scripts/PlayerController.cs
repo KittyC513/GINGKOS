@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Security;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -33,7 +34,7 @@ public class PlayerController : MonoBehaviour
     private float timeToZero = 0.05f;
     [SerializeField]
     private float timeToRunSpeed = 0.2f;
-    private Vector3 moveDir;
+    private Vector3 faceDir;
 
     //local speed value
     [SerializeField]
@@ -41,9 +42,36 @@ public class PlayerController : MonoBehaviour
 
     private bool running = false;
 
+    [Space, Header("Jump Variables")]
+    [SerializeField]
+    private Transform groundCheck;
+    [SerializeField]
+    LayerMask groundLayer;
+
+    private bool isGrounded = false;
+
+    [SerializeField]
+    private float groundCheckRadius = 0.33f;
+    [SerializeField]
+    private float groundCheckDist = 0.75f;
+    [SerializeField]
+    private float jumpSpeed;
+    [SerializeField]
+    private float jumpForce = 7;
+    [SerializeField]
+    private float jumpDeaccel = 0.5f;
+
+    private bool isJumping = false;
+
+
     [Space, Header("Other")]
     [SerializeField]
     private Animator playerAnim;
+   
+    [SerializeField]
+    enum debugMode { off, on }
+    [SerializeField]
+    debugMode debugToggle = debugMode.off;
 
     private CharacterController controller;
     private Vector3 playerVelocity;
@@ -70,7 +98,7 @@ public class PlayerController : MonoBehaviour
     {
         controller = gameObject.GetComponent<CharacterController>();
         player1Cam = Camera.main.transform;
-        moveDir = Vector3.zero;
+        faceDir = Vector3.zero;
     }
 
     void Update()
@@ -78,25 +106,51 @@ public class PlayerController : MonoBehaviour
         playerAnim.SetFloat("speed", currentSpeed);
         Move();
         Jump();
-        GroundDetect();
+        CheckGrounded();
+        ApplySpeed();
+        DebugFunctions();
     }
 
     private void FixedUpdate()
     {
-        
         Rotate();
     }
 
-    #region Ground Check
-    void GroundDetect()
+    #region Debug
+    private void DebugFunctions()
     {
-        //ground check, if player collides with ground layer, groundedPlayer equels true
-        groundedPlayer = controller.isGrounded;
-        if (groundedPlayer && playerVelocity.y < 0)
+        if (debugToggle == debugMode.on)
         {
-            playerVelocity.y = 0f;
+            //Debug.Log(faceDir);
+        }
+        
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        //if debug mode is on display a sphere which represents the radius of the groundcheck spherecast
+        if (debugToggle == debugMode.on)
+        {
+            Gizmos.DrawSphere(groundCheck.position, groundCheckRadius);
         }
     }
+    #endregion
+
+    #region Ground Check
+    private void CheckGrounded()
+    {
+        //send a spherecast downwards and check for ground, if theres ground we are grounded
+        RaycastHit hit;
+        if (Physics.SphereCast(groundCheck.position, groundCheckRadius, Vector3.down, out hit, groundCheckDist, groundLayer))
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+    }
+
     #endregion
 
     #region Player Movement
@@ -109,6 +163,18 @@ public class PlayerController : MonoBehaviour
         move = player1Cam.forward * move.z + player1Cam.right * move.x;
         move.y = 0f;
 
+        //moveN is the normalized version of move
+        //we want to keep move not normalized because it allows for different speeds when pushing the stick further
+        //but we need the normalized version to caluclate our facing direction
+        Vector3 moveN = move.normalized;
+        moveN = moveN.normalized;
+     
+        if (moveN.x != 0 || moveN.z != 0)
+        {
+            faceDir = moveN;
+        }
+        
+        //if we are reading the run button, start running
         if (runControl.action.ReadValue<float>() == 1)
         {
             running = true;
@@ -151,10 +217,10 @@ public class PlayerController : MonoBehaviour
         {
             //if our current speed is more than our walk speed and we let go of running
             //slow down a little gradually back to walk for weight
-            if (currentSpeed >= playerRunSpeed)
+            if (currentSpeed > playerWalkSpeed + 5)
             {
                 currentSpeed += ((0 - playerWalkSpeed) / 0.6f) * Time.deltaTime;
-                currentSpeed = Mathf.Clamp(currentSpeed, playerWalkSpeed, playerRunSpeed);
+                
             }
             else
             {
@@ -163,14 +229,22 @@ public class PlayerController : MonoBehaviour
            
         }
 
-
-        controller.Move(transform.forward * Time.deltaTime * currentSpeed);
+        //set the player velocity vector which is added to the controller to make it move
+        playerVelocity = new Vector3(faceDir.x * currentSpeed, jumpSpeed , faceDir.z * currentSpeed);
+        
+        
 
         if (move != Vector3.zero)
         {
             transform.forward = move;
         }
 
+    }
+
+    private void ApplySpeed()
+    {
+        //apply our actual speed in one place to avoid trying to override from multiple parts of the script
+        controller.Move(playerVelocity * Time.deltaTime);
     }
 
 
@@ -180,12 +254,19 @@ public class PlayerController : MonoBehaviour
     void Jump()
     {
         //input is pressed and player is grounded, the jump can be triggered
-        if (jumpControl.action.triggered && groundedPlayer)
+        if (jumpControl.action.triggered && isGrounded)
         {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+            //apply the initial jump force
+            jumpSpeed = jumpForce;
         }
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
+
+        if (isJumping)
+        {
+
+        }
+        //apply gravity
+        playerVelocity.y -= gravityValue * Time.deltaTime;
+        
     }
 
     #endregion
