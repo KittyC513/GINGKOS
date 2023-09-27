@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    [Header ("Movement Variables")]
     [SerializeField]
     private InputActionReference movementControl;
     [SerializeField]
@@ -39,7 +40,11 @@ public class PlayerController : MonoBehaviour
     private float currentSpeed;
 
     private bool running = false;
-   
+
+    [Space, Header("Other")]
+    [SerializeField]
+    private Animator playerAnim;
+
     private CharacterController controller;
     private Vector3 playerVelocity;
     private bool groundedPlayer;
@@ -70,6 +75,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        playerAnim.SetFloat("speed", currentSpeed);
         Move();
         Jump();
         GroundDetect();
