@@ -144,6 +144,7 @@ public class PlayerController : MonoBehaviour
         if (Physics.SphereCast(groundCheck.position, groundCheckRadius, Vector3.down, out hit, groundCheckDist, groundLayer))
         {
             isGrounded = true;
+
         }
         else
         {
@@ -161,7 +162,7 @@ public class PlayerController : MonoBehaviour
         Vector3 move = new Vector3(movement.x, 0, movement.y);
        
         move = player1Cam.forward * move.z + player1Cam.right * move.x;
-        move.y = 0f;
+        move.y = 0;
 
         //moveN is the normalized version of move
         //we want to keep move not normalized because it allows for different speeds when pushing the stick further
@@ -253,21 +254,23 @@ public class PlayerController : MonoBehaviour
     #region Jump Function
     void Jump()
     {
+
         //input is pressed and player is grounded, the jump can be triggered
         if (jumpControl.action.triggered && isGrounded)
         {
             //apply the initial jump force
             jumpSpeed = jumpForce;
-            isJumping = true;
+
         }
 
         if (isJumping)
         {
-            jumpControl.action.Disable();
+
         }
         //apply gravity
-        playerVelocity.y -= gravityValue * Time.deltaTime;
-        
+        jumpSpeed += Physics.gravity.y * Time.deltaTime;
+        //playerVelocity.y += gravityValue * Time.deltaTime;
+
     }
 
     #endregion
