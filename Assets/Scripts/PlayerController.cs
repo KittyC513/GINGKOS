@@ -260,7 +260,6 @@ public class PlayerController : MonoBehaviour
         {
             //apply the initial jump force
             jumpSpeed = jumpForce;
-
         }
 
         if (isJumping)
@@ -268,7 +267,16 @@ public class PlayerController : MonoBehaviour
 
         }
         //apply gravity
-        jumpSpeed += Physics.gravity.y * Time.deltaTime;
+        if(jumpSpeed > -20)
+        {
+            jumpSpeed += Physics.gravity.y * Time.deltaTime;
+        }
+        else
+        {
+            jumpSpeed = -20;
+        }
+
+
         //playerVelocity.y += gravityValue * Time.deltaTime;
 
     }
