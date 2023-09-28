@@ -104,7 +104,11 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         playerAnim.SetFloat("speed", currentSpeed);
-        Move();
+
+        if (isGrounded)
+        {
+            Move();
+        }
         Jump();
         CheckGrounded();
         ApplySpeed();
