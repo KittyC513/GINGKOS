@@ -80,7 +80,12 @@ public class PlayerController : MonoBehaviour
     Vector2 movement;
 
     [Space, Header("Player Status")]
-    private bool isWalking, isRuning;
+    private bool isWalking;
+
+    [Space, Header("Grappling Variables")]
+
+
+
 
 
     private void OnEnable()

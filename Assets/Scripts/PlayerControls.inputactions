@@ -167,7 +167,7 @@
                 {
                     "name": "",
                     "id": "2bfb0f19-c74d-45ab-b7cb-c23e3d4b6597",
-                    "path": "<XInputController>/buttonWest",
+                    "path": "<XInputController>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
