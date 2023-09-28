@@ -79,6 +79,10 @@ public class PlayerController : MonoBehaviour
     private Transform player1Cam;
     Vector2 movement;
 
+    [Space, Header("Player Status")]
+    private bool isWalking, isRuning;
+
+
     private void OnEnable()
     {
         movementControl.action.Enable();
@@ -105,10 +109,16 @@ public class PlayerController : MonoBehaviour
     {
         playerAnim.SetFloat("speed", currentSpeed);
 
-        if (isGrounded)
+        if (isGrounded && !isJumping)
         {
             Move();
+            if(currentSpeed <= 0)
+            {
+                isWalking = false;
+            }
         }
+
+
         Jump();
         CheckGrounded();
         ApplySpeed();
@@ -148,11 +158,16 @@ public class PlayerController : MonoBehaviour
         if (Physics.SphereCast(groundCheck.position, groundCheckRadius, Vector3.down, out hit, groundCheckDist, groundLayer))
         {
             isGrounded = true;
+            isJumping = false;
+            Debug.Log("isGrounded" + isGrounded);
 
         }
         else
         {
             isGrounded = false;
+            Debug.Log("isGrounded" + isGrounded);
+            playerVelocity.y += gravityValue * Time.deltaTime;
+
         }
     }
 
@@ -243,6 +258,8 @@ public class PlayerController : MonoBehaviour
         {
             transform.forward = move;
         }
+        isWalking = true;
+
 
     }
 
@@ -260,10 +277,11 @@ public class PlayerController : MonoBehaviour
     {
 
         //input is pressed and player is grounded, the jump can be triggered
-        if (jumpControl.action.triggered && isGrounded)
+        if (jumpControl.action.triggered && isGrounded && !isWalking)
         {
             //apply the initial jump force
             jumpSpeed = jumpForce;
+            isJumping = true;
         }
 
         if (isJumping)
@@ -281,7 +299,7 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        //playerVelocity.y += gravityValue * Time.deltaTime;
+
 
     }
 
