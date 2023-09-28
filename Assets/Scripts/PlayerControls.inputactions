@@ -156,7 +156,7 @@
                 {
                     "name": "",
                     "id": "a96701f1-f330-445d-a969-65afa28a602f",
-                    "path": "<XInputController>/buttonEast",
+                    "path": "<XInputController>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
