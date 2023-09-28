@@ -258,11 +258,12 @@ public class PlayerController : MonoBehaviour
         {
             //apply the initial jump force
             jumpSpeed = jumpForce;
+            isJumping = true;
         }
 
         if (isJumping)
         {
-
+            jumpControl.action.Disable();
         }
         //apply gravity
         playerVelocity.y -= gravityValue * Time.deltaTime;
