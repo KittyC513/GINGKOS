@@ -103,8 +103,10 @@ public class GamepadCursor : MonoBehaviour
     private void AnchorCursor(Vector2 position)
     {
         //Change the cursor with the screen sizes
+        
         Vector2 anchoredPosition;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, position, canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : mainCamera, out anchoredPosition);
         cursorTransform.anchoredPosition = anchoredPosition;
+        
     }
 }
