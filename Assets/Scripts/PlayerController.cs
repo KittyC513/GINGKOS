@@ -83,6 +83,7 @@ public class PlayerController : MonoBehaviour
     private bool isWalking;
 
     [Space, Header("Grappling Variables")]
+    public Transform tail;
 
 
 
