@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private InputActionReference runControl;
     [SerializeField]
+    private InputActionReference aimControl;
+    [SerializeField]
     private float playerWalkSpeed = 8.5f;
     [SerializeField]
     private float playerRunSpeed = 12;
@@ -85,6 +87,12 @@ public class PlayerController : MonoBehaviour
     [Space, Header("Grappling Variables")]
     public Transform tail;
 
+    [Space, Header("Aiming Variables")]
+    public GameObject mainCamera;
+    public GameObject aimCamera;
+    public GameObject aimCursor;
+
+
 
 
 
@@ -94,6 +102,7 @@ public class PlayerController : MonoBehaviour
         movementControl.action.Enable();
         jumpControl.action.Enable();
         runControl.action.Enable();
+        aimControl.action.Enable();
     }
 
     private void OnDisable()
@@ -101,6 +110,7 @@ public class PlayerController : MonoBehaviour
         movementControl.action.Disable();
         jumpControl.action.Disable();
         runControl.action.Disable();
+        aimControl.action.Disable();
     }
 
 
@@ -109,6 +119,10 @@ public class PlayerController : MonoBehaviour
         controller = gameObject.GetComponent<CharacterController>();
         player1Cam = Camera.main.transform;
         faceDir = Vector3.zero;
+
+        mainCamera.SetActive(true);
+        aimCamera.SetActive(false);
+        aimCursor.SetActive(false);
     }
 
     void Update()
@@ -123,7 +137,18 @@ public class PlayerController : MonoBehaviour
                 isWalking = false;
             }
         }
-
+        if (aimControl.action.IsPressed())
+        {
+            mainCamera.SetActive(false);
+            aimCamera.SetActive(true);
+            aimCursor.SetActive(true);
+        }
+        else
+        {
+            mainCamera.SetActive(true);
+            aimCamera.SetActive(false);
+            aimCursor.SetActive(false);
+        }
 
         Jump();
         CheckGrounded();
