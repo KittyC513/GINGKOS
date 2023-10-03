@@ -5,6 +5,7 @@ using System.Net.Security;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Cinemachine;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -16,6 +17,8 @@ public class PlayerController : MonoBehaviour
     private InputActionReference jumpControl;
     [SerializeField]
     private InputActionReference runControl;
+    [SerializeField]
+    private InputActionReference aimControl;
     [SerializeField]
     private float playerWalkSpeed = 8.5f;
     [SerializeField]
@@ -79,13 +82,25 @@ public class PlayerController : MonoBehaviour
     private Transform player1Cam;
     Vector2 movement;
 
-    [Space, Header("Player Status")]
+    [Space, Header("Player States")]
     private bool isWalking;
 
     [Space, Header("Grappling Variables")]
     public Transform tail;
 
+    [Space, Header("Aiming System")]
+    bool isAiming;
+    public GameObject mainCamera;
+    public GameObject aimCamera;
+    public GameObject aimReticle;
 
+
+    
+    public CinemachineFreeLook VCam;
+    public float adsFov = 25;
+    [HideInInspector] public float hipFov;
+    [HideInInspector] public float currrentFov;
+    public float fovSmoothSpeed = 10f;
 
 
 
@@ -94,6 +109,7 @@ public class PlayerController : MonoBehaviour
         movementControl.action.Enable();
         jumpControl.action.Enable();
         runControl.action.Enable();
+        aimControl.action.Enable();
     }
 
     private void OnDisable()
@@ -101,6 +117,7 @@ public class PlayerController : MonoBehaviour
         movementControl.action.Disable();
         jumpControl.action.Disable();
         runControl.action.Disable();
+        aimControl.action.Disable();
     }
 
 
@@ -109,6 +126,12 @@ public class PlayerController : MonoBehaviour
         controller = gameObject.GetComponent<CharacterController>();
         player1Cam = Camera.main.transform;
         faceDir = Vector3.zero;
+        hipFov = VCam.m_Lens.FieldOfView;
+
+        mainCamera.SetActive(true);
+        aimCamera.SetActive(false);
+        aimReticle.SetActive(false);
+
     }
 
     void Update()
@@ -129,6 +152,8 @@ public class PlayerController : MonoBehaviour
         CheckGrounded();
         ApplySpeed();
         DebugFunctions();
+        IsAiming();
+        AimFunction();
     }
 
     private void FixedUpdate()
@@ -308,7 +333,45 @@ public class PlayerController : MonoBehaviour
 
 
     }
+    #endregion
 
+    #region Aiming State
+    void IsAiming()
+    {
+        if (aimControl.action.IsPressed())
+        {
+            isAiming = true;
+            Debug.Log("Is Aiming");
+        }
+        else
+        {
+            isAiming = false;
+            //currrentFov = hipFov;
+            //VCam.m_Lens.FieldOfView = Mathf.Lerp(VCam.m_Lens.FieldOfView, currrentFov, fovSmoothSpeed * Time.deltaTime);
+            Debug.Log("Is Not Aiming");
+        }
+    }
+
+    void AimFunction()
+    {
+        if (isAiming)
+        {
+            /*
+            currrentFov = adsFov;
+            VCam.m_Lens.FieldOfView = Mathf.Lerp(VCam.m_Lens.FieldOfView, currrentFov, fovSmoothSpeed * Time.deltaTime);
+            */
+            mainCamera.SetActive(false);
+            aimCamera.SetActive(true);
+            aimReticle.SetActive(true);
+        }
+        else
+        {
+            mainCamera.SetActive(true);
+            aimCamera.SetActive(false);
+            aimReticle.SetActive(false);
+        }
+
+    }
     #endregion
 
     #region Player facing direction
