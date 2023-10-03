@@ -42,7 +42,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Grappling",
+                    "name": "Shoot",
                     "type": "PassThrough",
                     "id": "8126385a-fc9c-429b-81fc-944fbd52423f",
                     "expectedControlType": "Button",
@@ -200,7 +200,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Grappling",
+                    "action": "Shoot",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

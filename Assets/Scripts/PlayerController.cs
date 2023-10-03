@@ -84,9 +84,11 @@ public class PlayerController : MonoBehaviour
 
     [Space, Header("Player States")]
     private bool isWalking;
+    bool isFreeze;
 
     [Space, Header("Grappling Variables")]
     public Transform tail;
+    GrapplingTail gT;
 
     [Space, Header("Aiming System")]
     bool isAiming;
@@ -132,13 +134,15 @@ public class PlayerController : MonoBehaviour
         aimCamera.SetActive(false);
         aimReticle.SetActive(false);
 
+        gT = GetComponent<GrapplingTail>();
+
     }
 
     void Update()
     {
         playerAnim.SetFloat("speed", currentSpeed);
 
-        if (isGrounded && !isJumping)
+        if (isGrounded && !isJumping && !isAiming)
         {
             Move();
             if(currentSpeed <= 0)
@@ -154,6 +158,7 @@ public class PlayerController : MonoBehaviour
         DebugFunctions();
         IsAiming();
         AimFunction();
+        FreezeFunction();
     }
 
     private void FixedUpdate()
@@ -226,7 +231,7 @@ public class PlayerController : MonoBehaviour
         }
         
         //if we are reading the run button, start running
-        if (runControl.action.ReadValue<float>() == 1)
+        if (runControl.action.ReadValue<float>() == 1 && !isAiming)
         {
             running = true;
         }
@@ -363,12 +368,14 @@ public class PlayerController : MonoBehaviour
             mainCamera.SetActive(false);
             aimCamera.SetActive(true);
             aimReticle.SetActive(true);
+
         }
         else
         {
             mainCamera.SetActive(true);
             aimCamera.SetActive(false);
             aimReticle.SetActive(false);
+
         }
 
     }
@@ -382,6 +389,17 @@ public class PlayerController : MonoBehaviour
             float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + player1Cam.eulerAngles.y;
             Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
+        }
+    }
+    #endregion
+
+    #region Freeze
+    void FreezeFunction()
+    {
+        if(gT.grappling == true)
+        {
+            currentSpeed = 0;
+            rotationSpeed = 0f;
         }
     }
     #endregion

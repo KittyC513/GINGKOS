@@ -6,87 +6,108 @@ using UnityEngine.InputSystem;
 public class GrapplingTail : MonoBehaviour
 {
 
-    [Header("Grappling variables")]
-    [SerializeField]
-    private InputActionReference grapplingControl;
-    [SerializeField]
-    private float maxDistance = 100f;
+    [Header("Reference")]
+    private PlayerController pc;
+    public Transform cam;
+    public Transform tail;
+    public LayerMask grappleable;
+    public LineRenderer lr;
 
-    private LineRenderer lR;
+    [Header("Grappling")]
+    public float maxGrappleDistance;
+    public float grappleDelayTime;
+
     private Vector3 grapplePoint;
-    public LayerMask Grappleable;
-    
-    public Transform tailTip, camera, player;
-    private SpringJoint joint;
 
+    [Header("Cooldown")]
+    public float grapplingCd;
+    private float grapplingCdTimer;
 
+    [Header("Input")]
+    [SerializeField]
+    private InputActionReference shootControl;
 
-    private void Awake()
-    {
-        lR = GetComponent<LineRenderer>();
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
+    public bool grappling;
 
-    }
     private void OnEnable()
     {
-        grapplingControl.action.Enable();
-
+        shootControl.action.Enable();
     }
 
     private void OnDisable()
     {
-        grapplingControl.action.Disable();
-
+        shootControl.action.Disable();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        DrawRope();
-        if (grapplingControl.action.triggered)
+        pc = GetComponent<PlayerController>();
+    }
+
+    private void Update()
+    {
+        if (shootControl.action.triggered)
         {
             StartGrapple();
-        }else if (!grapplingControl.action.triggered)
+        }
+
+        if(grapplingCdTimer > 0)
         {
-            StopGrapple();
+            grapplingCdTimer -= Time.deltaTime;
         }
     }
 
-    void StartGrapple()
+    private void LateUpdate()
     {
-        RaycastHit hit;
+        if (grappling)
+        {
+            lr.SetPosition(0, tail.position);
+        }
+    }
+    private void StartGrapple()
+    {
+        if (grapplingCdTimer > 0) return;
+            
+        grappling = true;
 
-        if(Physics.Raycast(origin: camera.position, direction: camera.forward, out hit, maxDistance))
+        RaycastHit hit;
+        if (Physics.Raycast(cam.position, cam.forward, out hit, maxGrappleDistance, grappleable))
         {
             grapplePoint = hit.point;
-            joint = player.gameObject.AddComponent<SpringJoint>();
-            joint.autoConfigureConnectedAnchor = false;
-            joint.connectedAnchor = grapplePoint;
 
-            float distanceFromPoint = Vector3.Distance(player.position, grapplePoint);
-
-            joint.maxDistance = distanceFromPoint * 0.8f;
-            joint.minDistance = distanceFromPoint * 0.25f;
-
-            joint.spring = 4.5f;
-            joint.damper = 7f;
-            joint.massScale = 4.5f;
-            Debug.Log("isGrappling = true");
+            Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
-    }
-    
-    void DrawRope()
-    {
-        lR.SetPosition(0, tailTip.position);
-        lR.SetPosition(1, tailTip.position); 
-    }
+        else
+        {
+            grapplePoint = cam.position + cam.forward * maxGrappleDistance;
 
+            Invoke(nameof(StopGrapple), grappleDelayTime);
+        }
+
+        lr.enabled = true;
+        lr.SetPosition(1, grapplePoint);
+      
+    }
+    void ExecuteGrapple()
+    {
+
+    }
     void StopGrapple()
     {
+        //when grappling ends, the cooldown timer return to zero 
+        grappling = false;
+
+        grapplingCdTimer = grapplingCd;
+
+        lr.enabled = false;
+    }
+    private void EndGrapple()
+    {
 
     }
+
+
+
+
 
 }
