@@ -85,7 +85,7 @@ public class PlayerController : MonoBehaviour
     [Space, Header("Grappling Variables")]
     public Transform tail;
 
-
+    private bool isOnCircle = false;
 
 
 
@@ -109,6 +109,7 @@ public class PlayerController : MonoBehaviour
         controller = gameObject.GetComponent<CharacterController>();
         player1Cam = Camera.main.transform;
         faceDir = Vector3.zero;
+        Application.targetFrameRate = 60;
     }
 
     void Update()
@@ -262,7 +263,7 @@ public class PlayerController : MonoBehaviour
 
         if (move != Vector3.zero)
         {
-            transform.forward = move;
+            //transform.forward = move;
         }
         isWalking = true;
 
@@ -321,5 +322,33 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
         }
     }
+    #endregion
+
+    #region Public Functions
+
+    public bool ReadActionButton()
+    {
+        if (running) return true;
+        else return false;
+    }
+
+    public void OnSummoningEnter()
+    {
+        //player can't move unless they let go of running
+        //player is now in the summoning animation
+        //the summoning circle is active
+        //move player towards
+        isOnCircle = true;
+
+    }
+
+    public void OnSummoningExit()
+    {
+        //player can now move and summoning circle is not active
+        //player is no longer in the summoning animation
+        isOnCircle = false;
+
+    }
+
     #endregion
 }
