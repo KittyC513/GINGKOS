@@ -49,7 +49,7 @@ public class SummoningCircle : MonoBehaviour
                 {
                     //activate summoning for this script at the player script
                     summoningActive = true;
-                    player.OnSummoningEnter();
+                    player.OnSummoningEnter(this.gameObject);
                 }
                 
                 if (summoningActive && !player.ReadActionButton())
