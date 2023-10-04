@@ -7,28 +7,43 @@ public class GrapplingTail : MonoBehaviour
 {
 
     [Header("Grappling variables")]
+    public ThirdPersonMovement Tpm;
     [SerializeField]
     private InputActionReference grapplingControl;
     [SerializeField]
     private float maxDistance = 100f;
+    [SerializeField]
+    private Transform cam;
+    [SerializeField]
+    private Transform tailTip;
+    [SerializeField]
+    private LayerMask grappleable;
+    LineRenderer lr;
 
-    private LineRenderer lR;
+    [Header("Grappling")]
+    [SerializeField]
+    private float maxGrappleDistance;
+    [SerializeField]
+    private float grappleDelayTime;
+
     private Vector3 grapplePoint;
-    public LayerMask Grappleable;
-    
-    public Transform tailTip, camera, player;
-    private SpringJoint joint;
 
+    [Header("Cooldown")]
+    [SerializeField]
+    private float grapplingCd;
+    [SerializeField]
+    private float grapplingCdTimer;
+    private bool isGrappling;
 
 
     private void Awake()
     {
-        lR = GetComponent<LineRenderer>();
+        lr = GetComponent<LineRenderer>();
     }
     // Start is called before the first frame update
     void Start()
     {
-
+        Tpm = GetComponent<ThirdPersonMovement>();
     }
     private void OnEnable()
     {
@@ -45,7 +60,7 @@ public class GrapplingTail : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        DrawRope();
+
         if (grapplingControl.action.triggered)
         {
             StartGrapple();
@@ -53,40 +68,61 @@ public class GrapplingTail : MonoBehaviour
         {
             StopGrapple();
         }
+
+        if(grapplingCd > 0)
+        {
+            grapplingCd -= Time.deltaTime;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (isGrappling)
+        {
+            lr.SetPosition(0, tailTip.position);
+        }
     }
 
     void StartGrapple()
     {
-        RaycastHit hit;
+        if (grapplingCdTimer > 0) return;
+        
+        isGrappling = true;
 
-        if(Physics.Raycast(origin: camera.position, direction: camera.forward, out hit, maxDistance))
+        //Tpm.isFreeze = true;
+
+        RaycastHit hit;
+        if (Physics.Raycast(cam.position, cam.forward, out hit, maxDistance, grappleable))
         {
             grapplePoint = hit.point;
-            joint = player.gameObject.AddComponent<SpringJoint>();
-            joint.autoConfigureConnectedAnchor = false;
-            joint.connectedAnchor = grapplePoint;
 
-            float distanceFromPoint = Vector3.Distance(player.position, grapplePoint);
-
-            joint.maxDistance = distanceFromPoint * 0.8f;
-            joint.minDistance = distanceFromPoint * 0.25f;
-
-            joint.spring = 4.5f;
-            joint.damper = 7f;
-            joint.massScale = 4.5f;
-            Debug.Log("isGrappling = true");
+            Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
+        else
+        {
+            grapplePoint = cam.position + cam.forward * maxGrappleDistance;
+            Invoke(nameof(StopGrapple), grappleDelayTime);
+        }
+
+        lr.enabled = true;
+        lr.SetPosition(1, grapplePoint);
+        
+    }
+
+    void ExecuteGrapple()
+    {
+        //Tpm.isFreeze = false;
     }
     
-    void DrawRope()
-    {
-        lR.SetPosition(0, tailTip.position);
-        lR.SetPosition(1, tailTip.position); 
-    }
 
     void StopGrapple()
     {
+        //Tpm.isFreeze = false;
 
+        isGrappling = false;
+        grapplingCdTimer = grapplingCd;
+
+        lr.enabled = false;
     }
 
 }

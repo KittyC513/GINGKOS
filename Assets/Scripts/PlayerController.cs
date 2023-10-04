@@ -93,10 +93,6 @@ public class PlayerController : MonoBehaviour
     public GameObject aimCursor;
 
 
-
-
-
-
     private void OnEnable()
     {
         movementControl.action.Enable();
