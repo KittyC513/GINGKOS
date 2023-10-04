@@ -5,7 +5,9 @@ using UnityEngine.Events;
 
 public class SummoningCircle : MonoBehaviour
 {
+    [SerializeField]
     private PlayerController player;
+    [SerializeField]
     private GameObject playerGameObject;
 
     [SerializeField]
@@ -35,7 +37,7 @@ public class SummoningCircle : MonoBehaviour
     {
         //detect the player
         //if the player is detected read its run input, if the run input is active we want to set the player to a hold button state
-
+        DetectPlayer();
         //if we detect the player in our circle
         if (DetectPlayer() != null)
         {
@@ -59,10 +61,17 @@ public class SummoningCircle : MonoBehaviour
             }
         }
 
+        //if summoning is active run functions
         if (summoningActive)
         {
             onSummon.Invoke();
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(origin.position, radius);
     }
 
     private GameObject DetectPlayer()
@@ -71,12 +80,16 @@ public class SummoningCircle : MonoBehaviour
 
         if (playerCollider.Length > 0)
         {
-            GameObject playerObj = playerCollider[0].GetComponent<GameObject>();
+            GameObject playerObj = playerCollider[0].gameObject;
             player = playerObj.GetComponent<PlayerController>();
             return playerObj;
         }
         else
         {
+            if (player != null)
+            {
+                player.OnSummoningExit();
+            }
             player = null;
             return null;
         }

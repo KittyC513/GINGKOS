@@ -9,13 +9,13 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    [Header ("Movement Variables")]
+    [Header("Movement Variables")]
     [SerializeField]
-    private InputActionReference movementControl;
-    [SerializeField]
-    private InputActionReference jumpControl;
-    [SerializeField]
-    private InputActionReference runControl;
+    private PlayerControls playerControls;
+    private InputAction movementControl;
+    private InputAction jumpControl;
+    private InputAction runControl;
+
     [SerializeField]
     private float playerWalkSpeed = 8.5f;
     [SerializeField]
@@ -57,9 +57,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float jumpSpeed;
     [SerializeField]
-    private float jumpForce = 7;
+    private float jumpForce = 15;
     [SerializeField]
-    private float jumpDeaccel = 0.5f;
+    private float jumpDeaccel = 12f;
+    [SerializeField]
+    private float maxFall = -35;
 
     private bool isJumping = false;
 
@@ -81,6 +83,8 @@ public class PlayerController : MonoBehaviour
 
     [Space, Header("Player Status")]
     private bool isWalking;
+    public enum playerState { idle, walking, running, jumping, airborne, summoning }
+    public playerState pState;
 
     [Space, Header("Grappling Variables")]
     public Transform tail;
@@ -88,19 +92,26 @@ public class PlayerController : MonoBehaviour
     private bool isOnCircle = false;
 
 
-
+    private void Awake()
+    {
+        playerControls = new PlayerControls();
+    }
     private void OnEnable()
     {
-        movementControl.action.Enable();
-        jumpControl.action.Enable();
-        runControl.action.Enable();
+        movementControl = playerControls.Player.Movement;
+        movementControl.Enable();
+        jumpControl = playerControls.Player.Jump;
+        jumpControl.Enable();
+        runControl = playerControls.Player.Run;
+        runControl.Enable();
+        
     }
 
     private void OnDisable()
     {
-        movementControl.action.Disable();
-        jumpControl.action.Disable();
-        runControl.action.Disable();
+        movementControl.Disable();
+        jumpControl.Disable();
+        runControl.Disable();
     }
 
 
@@ -118,23 +129,52 @@ public class PlayerController : MonoBehaviour
 
         if (isGrounded && !isJumping)
         {
-            Move();
+            
             if(currentSpeed <= 0)
             {
                 isWalking = false;
             }
         }
 
-
+        Move();
         Jump();
         CheckGrounded();
         ApplySpeed();
         DebugFunctions();
+        UpdateStates();
     }
 
     private void FixedUpdate()
     {
         Rotate();
+    }
+
+    private void UpdateStates()
+    {
+        if (isOnCircle)
+        {
+            pState = playerState.summoning;
+        }
+        else if (currentSpeed <= 0 && isGrounded)
+        {
+            pState = playerState.idle;
+        }
+        else if (!isGrounded && isJumping)
+        {
+            pState = playerState.jumping;
+        }
+        else if (!isGrounded)
+        {
+            pState = playerState.airborne;
+        }
+        else if (currentSpeed > playerWalkSpeed)
+        {
+            pState = playerState.running;
+        }
+        else if (currentSpeed <= playerWalkSpeed)
+        {
+            pState = playerState.walking;
+        }
     }
 
     #region Debug
@@ -166,13 +206,13 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
             isJumping = false;
-            Debug.Log("isGrounded" + isGrounded);
+            //Debug.Log("isGrounded" + isGrounded);
 
         }
         else
         {
             isGrounded = false;
-            Debug.Log("isGrounded" + isGrounded);
+            //Debug.Log("isGrounded" + isGrounded);
             playerVelocity.y += gravityValue * Time.deltaTime;
 
         }
@@ -184,7 +224,7 @@ public class PlayerController : MonoBehaviour
     void Move()
     {
         //access new input system, add xbox input 
-        movement = movementControl.action.ReadValue<Vector2>();
+        movement = movementControl.ReadValue<Vector2>();
         Vector3 move = new Vector3(movement.x, 0, movement.y);
        
         move = player1Cam.forward * move.z + player1Cam.right * move.x;
@@ -202,7 +242,7 @@ public class PlayerController : MonoBehaviour
         }
         
         //if we are reading the run button, start running
-        if (runControl.action.ReadValue<float>() == 1)
+        if (runControl.ReadValue<float>() == 1)
         {
             running = true;
         }
@@ -284,25 +324,32 @@ public class PlayerController : MonoBehaviour
     {
 
         //input is pressed and player is grounded, the jump can be triggered
-        if (jumpControl.action.triggered && isGrounded && !isWalking)
+        if (jumpControl.ReadValue<float>() == 1 && isGrounded)
         {
             //apply the initial jump force
             jumpSpeed = jumpForce;
             isJumping = true;
         }
 
-        if (isJumping)
+        //if we let go of the button while jumping cut off our jump speed by half
+        if (isJumping && jumpControl.ReadValue<float>() == 0)
         {
-
+            Debug.Log(jumpSpeed);
+            if (jumpSpeed > 0)
+            {
+                jumpSpeed = jumpSpeed / 2;
+            }
+            
+            isJumping = false;
         }
         //apply gravity
-        if(jumpSpeed > -20)
+        if(jumpSpeed > maxFall)
         {
-            jumpSpeed += Physics.gravity.y * Time.deltaTime;
+            jumpSpeed += -jumpDeaccel * Time.deltaTime;
         }
         else
         {
-            jumpSpeed = -20;
+            jumpSpeed = maxFall;
         }
 
 
