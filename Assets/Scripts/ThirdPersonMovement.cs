@@ -79,8 +79,8 @@ public class ThirdPersonMovement : MonoBehaviour
     {
         freeze,
         walking,
-        sprinting,
-        crouching,
+        running,
+        grappling,
         air
     }
 
@@ -194,11 +194,15 @@ public class ThirdPersonMovement : MonoBehaviour
         }else if(currentStyle == CameraStyle.Combat)
         {
             Vector3 dirToCombatLookAt = combatLookAt.position - new Vector3(transform.position.x, combatLookAt.position.y, transform.position.z);
-            
-            //player1Cam.forward = viewDir.normalized;
-            orientation.forward = viewDir.normalized;
+            orientation.forward = dirToCombatLookAt.normalized;
 
+            //player1Cam.forward = dirToCombatLookAt.normalized;
+        
             playerObj.forward = dirToCombatLookAt.normalized;
+            Debug.Log("dirToCombatLookAt" + dirToCombatLookAt);
+            Debug.Log("playerObj" + playerObj.forward);
+
+            //playerObj.forward = Vector3.Slerp(playerObj.forward, move, Time.deltaTime * rotationSpeed);
 
         }
         //rotate player object by player movement input value
@@ -262,7 +266,6 @@ public class ThirdPersonMovement : MonoBehaviour
     #region Player facing direction
     void Rotate()
     {
-
         if (movement != Vector2.zero)
         {
             //float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + player1Cam.eulerAngles.y;
