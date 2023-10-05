@@ -2456,11 +2456,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5207812549975945481, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.000000008470873
+      value: -0.000000008460876
       objectReference: {fileID: 0}
     - target: {fileID: 5207812549975945481, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.0000000015030401
+      value: 0.0000000015012663
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550111854800, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_Layer
@@ -2519,53 +2519,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -641061224112217741, guid: 77285a14f47ab8d4bb242e22f92f5a37, type: 3}
     - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: timeToZero
-      value: 0.02
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: debugToggle
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: groundCheck
       value: 
       objectReference: {fileID: 1239812730}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: jumpDeaccel
-      value: 35
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: minJumpForce
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: rotationSpeed
-      value: 25
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: timeToRunSpeed
-      value: 0.16
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: groundCheckDist
-      value: 0.83
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: playerWalkSpeed
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: timeToWalkSpeed
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: groundCheckRadius
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5207812550649366394, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
-      propertyPath: groundLayer.m_Bits
-      value: 8
-      objectReference: {fileID: 0}
     - target: {fileID: 5207812550778468439, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -2656,11 +2612,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550968950800, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.0000000033817849
+      value: 0.0000000035075078
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550968950800, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -8.9508007e-10
+      value: -9.2835556e-10
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550968950803, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_Layer

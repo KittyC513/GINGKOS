@@ -541,17 +541,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8959be4be3a592249b3a5883dd8c6ca1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementControl: {fileID: -6958663446336538312, guid: 77285a14f47ab8d4bb242e22f92f5a37, type: 3}
-  jumpControl: {fileID: -7477935379432534044, guid: 77285a14f47ab8d4bb242e22f92f5a37, type: 3}
-  playerWalkSpeed: 8.5
+  playerWalkSpeed: 5
   playerRunSpeed: 12
   jumpHeight: 1
   gravityValue: -9.81
-  rotationSpeed: 4
-  timeToWalkSpeed: 0.15
-  timeToZero: 0.05
-  timeToRunSpeed: 0.2
+  rotationSpeed: 25
+  timeToWalkSpeed: 0.1
+  timeToZero: 0.02
+  timeToRunSpeed: 0.16
   currentSpeed: 0
+  groundCheck: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  groundCheckRadius: 0.1
+  groundCheckDist: 0.83
+  jumpSpeed: 0
+  jumpForce: 15
+  jumpDeaccel: 35
+  minJumpForce: 11
+  maxFall: -35
+  playerAnim: {fileID: 0}
+  debugToggle: 1
+  pState: 0
+  tail: {fileID: 0}
 --- !u!1 &5207812550778468439
 GameObject:
   m_ObjectHideFlags: 0
