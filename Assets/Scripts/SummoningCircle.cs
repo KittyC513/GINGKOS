@@ -5,7 +5,6 @@ using UnityEngine.Events;
 
 public class SummoningCircle : MonoBehaviour
 {
-    [SerializeField]
     private PlayerController player;
     [SerializeField]
     private GameObject playerGameObject;
@@ -19,14 +18,11 @@ public class SummoningCircle : MonoBehaviour
 
     [SerializeField]
     private UnityEvent onSummon;
+    [SerializeField]
+    private UnityEvent onExit;
 
     private bool summoningActive = false;
 
-    //need to get the player's interact button
-    //the player could get the script from this object to make it a little easier however it becomes dependant on that script
-    //could check the range around itself for a player and then check for the button press from here
-    //difference between having the logic in this script or in the player script
-    //might have it cleaner to have it here however every summoning circle will be checking around it all the time for a player
 
     private void Start()
     {
@@ -57,6 +53,7 @@ public class SummoningCircle : MonoBehaviour
                     //if summoning is active and we let go of the action button exit the summon
                     summoningActive = false;
                     player.OnSummoningExit();
+                    onExit.Invoke();
                 }
             }
         }
@@ -76,8 +73,10 @@ public class SummoningCircle : MonoBehaviour
 
     private GameObject DetectPlayer()
     {
+        //check a circular area for a collider with the player layermask
         Collider[] playerCollider = Physics.OverlapSphere(origin.position, radius, playerMask);
 
+        //if we detect a player grab our player object and script for use otherwise exit the player from their summoning state if they are in it and get rid of our player reference
         if (playerCollider.Length > 0)
         {
             GameObject playerObj = playerCollider[0].gameObject;

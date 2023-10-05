@@ -162,7 +162,7 @@ public class PlayerController : MonoBehaviour
         //set our speed value in our animator
         playerAnim.SetFloat("speed", currentSpeed);
         //set our summoning state in our animator
-        playerAnim.SetBool("summoning", pState == playerState.summoning);
+        //playerAnim.SetBool("summoning", pState == playerState.summoning);
     }
 
     #region State Machine
