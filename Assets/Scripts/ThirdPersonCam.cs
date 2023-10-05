@@ -5,12 +5,12 @@ using UnityEngine.InputSystem;
 
 public class ThirdPersonCam : MonoBehaviour
 {
-    [Header("References")]
+
+    [Header("Orientation References")]
     public Transform player;
     public Transform playerObj;
     public Rigidbody rb;
     public Transform player1Cam;
-
     [SerializeField]
     private float rotationSpeed;
 
@@ -23,6 +23,22 @@ public class ThirdPersonCam : MonoBehaviour
     private InputActionReference runControl;
     [SerializeField]
     private InputActionReference aimControl;
+
+    [Header("Movement")]
+    Vector3 move;
+
+    [Header("Ground Check")]
+    [SerializeField]
+    private LayerMask groundLayer;
+    [SerializeField]
+    private bool isGrounded;
+    [SerializeField]
+    private float groundDrag;
+    [SerializeField]
+    private float playerHeight;
+
+
+
 
     private void OnEnable()
     {
@@ -48,21 +64,64 @@ public class ThirdPersonCam : MonoBehaviour
         Cursor.visible = false;
 
         player1Cam = Camera.main.transform;
+
+        //freeze the rigidbody's rotation
+        rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
+
         
     }
 
     // Update is called once per frame
     void Update()
     {
-        //read the input from new input system 
-        Vector2 movement = movementControl.action.ReadValue<Vector2>();
-        Vector3 move = new Vector3(movement.x, 0, movement.y);
+        MovementInput();
+        groundCheck();
 
-        //we want player move forward according to camera's direction
+        if (isGrounded)
+        {
+            rb.drag = groundDrag;
+        }
+        else
+        {
+            rb.drag = 0;
+        }
+
+    }
+
+    private void FixedUpdate()
+    {
+        MoveFunction(3f);
+    }
+
+    #region Player Movement
+    void MovementInput()
+    {
+        Vector2 movement = movementControl.action.ReadValue<Vector2>();
+        move = new Vector3(movement.x, 0, movement.y);
+    }
+
+    void MoveFunction(float moveSpeed)
+    {
+        //always move forward the way the camera's looking
         move = player1Cam.forward * move.z + player1Cam.right * move.x;
         move.y = 0f;
 
-        playerObj.forward = Vector3.Slerp(playerObj.forward, move.normalized, Time.deltaTime * rotationSpeed);
+        //rotate player
+        playerObj.forward = Vector3.Slerp(playerObj.forward, move, Time.deltaTime * rotationSpeed);
+
+        //player movement 
+        rb.AddForce(move.normalized * moveSpeed * 10f, ForceMode.Force);
+    }
+
+    #endregion
+
+    #region Ground Check
+    void groundCheck()
+    {
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer);
 
     }
+
+    #endregion
 }
