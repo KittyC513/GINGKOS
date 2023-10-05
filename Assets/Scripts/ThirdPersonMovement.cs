@@ -185,7 +185,7 @@ public class ThirdPersonMovement : MonoBehaviour
         if (currentStyle == CameraStyle.Basic)
         {
             //move = player1Cam.forward * move.z + player1Cam.right * move.x;
-            move = orientation.forward * move.z + orientation.right * move.x;
+            move = player1Cam.forward * move.z + player1Cam.right * move.x;
 
             if (move != Vector3.zero)
             {
