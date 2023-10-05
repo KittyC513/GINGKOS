@@ -67,12 +67,18 @@ public class PlayerController : MonoBehaviour
 
     private bool isJumping = false;
 
+    [Space, Header("Death and Respawn")]
+    
 
     [Space, Header("Other")]
     [SerializeField]
     private Animator playerAnim;
     private bool isOnCircle = false;
     private GameObject activeCircle;
+    [SerializeField]
+    private Sprite shadowSprite;
+    [SerializeField]
+    private GameObject shadowRenderer;
 
     [SerializeField]
     enum debugMode { off, on }
@@ -110,8 +116,6 @@ public class PlayerController : MonoBehaviour
         runControl = playerControls.Player.Run;
         runControl.Enable();
 
-        
-        
     }
 
     private void OnDisable()
@@ -127,6 +131,7 @@ public class PlayerController : MonoBehaviour
         player1Cam = Camera.main.transform;
         faceDir = Vector3.zero;
         Application.targetFrameRate = 60;
+        shadowRenderer.GetComponent<SpriteRenderer>().sprite = shadowSprite;
     }
 
     void Update()
@@ -137,13 +142,15 @@ public class PlayerController : MonoBehaviour
             Move();
             Jump();
         }
-      
+
+        
         ReadInput();
         UpdateAnimation();
         CheckGrounded();
         ApplySpeed();
         DebugFunctions();
         UpdateStates();
+        CastBlobShadow();
     }
 
     private void FixedUpdate()
@@ -271,6 +278,17 @@ public class PlayerController : MonoBehaviour
             playerVelocity.y += gravityValue * Time.deltaTime;
 
         }
+    }
+
+    private void CastBlobShadow()
+    {
+        RaycastHit hit;
+        
+        if (Physics.SphereCast(transform.position, groundCheckRadius, -Vector3.up, out hit, Mathf.Infinity, groundLayer))
+        {
+            shadowRenderer.transform.position = new Vector3(transform.position.x, hit.point.y + 0.1f, transform.position.z);
+        }
+
     }
 
     #endregion
@@ -440,6 +458,23 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
         }
     }
+    #endregion
+
+    #region Death
+
+    private void Die()
+    {
+        //respawn player
+        //death counter add possibly
+        //visual effects play
+        //Respawn();
+    }
+
+    private void Respawn(Vector3 respawnPos)
+    {
+        //move player to their respawn point
+    }
+
     #endregion
 
     #region Public Functions

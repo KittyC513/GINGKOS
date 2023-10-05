@@ -5,9 +5,10 @@ using UnityEngine.Events;
 
 public class SummoningCircle : MonoBehaviour
 {
-    private PlayerController player;
     [SerializeField]
-    private GameObject playerGameObject;
+    private PlayerController[] players;
+
+    private PlayerController activePlayer;
 
     [SerializeField]
     private float radius = 1f;
@@ -26,7 +27,7 @@ public class SummoningCircle : MonoBehaviour
 
     private void Start()
     {
-        
+        players = new PlayerController[4];
     }
 
     private void Update()
@@ -35,28 +36,34 @@ public class SummoningCircle : MonoBehaviour
         //if the player is detected read its run input, if the run input is active we want to set the player to a hold button state
         DetectPlayer();
         //if we detect the player in our circle
-        if (DetectPlayer() != null)
+        for (int i = 0; i < players.Length - 1; i++)
         {
             //and just a double check that we have a player script attached to our player
-            if (player != null)
+            if (players[i] != null)
             {
                 //if the player presses the action button (run)
-                if (player.ReadActionButton())
+                if (players[i].ReadActionButton() && !summoningActive)
                 {
                     //activate summoning for this script at the player script
                     summoningActive = true;
-                    player.OnSummoningEnter(this.gameObject);
+                    players[i].OnSummoningEnter(this.gameObject);
+                    activePlayer = players[i];
                 }
-                
-                if (summoningActive && !player.ReadActionButton())
-                {
-                    //if summoning is active and we let go of the action button exit the summon
-                    summoningActive = false;
-                    player.OnSummoningExit();
-                    onExit.Invoke();
-                }
+
             }
+            
         }
+
+
+        if (activePlayer != null && summoningActive && !activePlayer.ReadActionButton())
+        {
+            //if summoning is active and we let go of the action button exit the summon
+            summoningActive = false;
+            activePlayer.OnSummoningExit();
+            onExit.Invoke();
+            activePlayer = null;
+        }
+
 
         //if summoning is active run functions
         if (summoningActive)
@@ -71,7 +78,7 @@ public class SummoningCircle : MonoBehaviour
         Gizmos.DrawWireSphere(origin.position, radius);
     }
 
-    private GameObject DetectPlayer()
+    private void DetectPlayer()
     {
         //check a circular area for a collider with the player layermask
         Collider[] playerCollider = Physics.OverlapSphere(origin.position, radius, playerMask);
@@ -79,19 +86,27 @@ public class SummoningCircle : MonoBehaviour
         //if we detect a player grab our player object and script for use otherwise exit the player from their summoning state if they are in it and get rid of our player reference
         if (playerCollider.Length > 0)
         {
-            GameObject playerObj = playerCollider[0].gameObject;
-            player = playerObj.GetComponent<PlayerController>();
-            return playerObj;
+            Debug.Log(playerCollider.Length);
+            for (int i = 0; i < playerCollider.Length - 1; i++)
+            {
+                GameObject playerObj = playerCollider[i].gameObject;
+                players[i] = playerObj.GetComponent<PlayerController>();
+                
+            }
         }
         else
         {
-            if (player != null)
+            for (int i = 0; i < players.Length - 1; i++)
             {
-                player.OnSummoningExit();
+                if (players[i] != null)
+                {
+                    players[i].OnSummoningExit();
+                }
+                players[i] = null;
             }
-            player = null;
-            return null;
         }
        
+        //check if we are still colliding with target player
+        //if we aren't get rid of the reference
     }
 }
