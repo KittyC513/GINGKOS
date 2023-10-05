@@ -25,6 +25,8 @@ public class GrapplingTail : MonoBehaviour
     private float maxGrappleDistance;
     [SerializeField]
     private float grappleDelayTime;
+    [SerializeField]
+    private float overshootYAxis;
 
     private Vector3 grapplePoint;
 
@@ -66,7 +68,7 @@ public class GrapplingTail : MonoBehaviour
             StartGrapple();
         }else if (!grapplingControl.action.triggered)
         {
-            //StopGrapple();
+            StopGrapple();
         }
 
         if(grapplingCd > 0)
@@ -117,6 +119,20 @@ public class GrapplingTail : MonoBehaviour
     void ExecuteGrapple()
     {
         //Tpm.isFreeze = false;
+        Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
+
+        float grapplePointRelativeYpos = grapplePoint.y - lowestPoint.y;
+        float highestPointOnArc = grapplePointRelativeYpos + overshootYAxis;
+
+        if(grapplePointRelativeYpos < 0)
+        {
+            highestPointOnArc = overshootYAxis;
+            Tpm.JumpToPosition(grapplePoint, highestPointOnArc);
+        }
+
+        Invoke(nameof(StopGrapple), 1f);
+            
+           
     }
     
 
@@ -131,6 +147,7 @@ public class GrapplingTail : MonoBehaviour
     }
 
 
+    //Kinematic equations
     public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
     {
         float gravity = Physics.gravity.y;
@@ -141,4 +158,5 @@ public class GrapplingTail : MonoBehaviour
         Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity) + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
         return velocityXZ + velocityY;
     }
+
 }

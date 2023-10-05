@@ -75,6 +75,9 @@ public class ThirdPersonMovement : MonoBehaviour
     private GrapplingTail gT;
     [SerializeField]
     private bool isGrappling;
+    [SerializeField]
+    private Vector3 velocityToSet;
+
 
     public bool isFreeze;
 
@@ -305,7 +308,7 @@ public class ThirdPersonMovement : MonoBehaviour
     {
         isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, Ground);
 
-        if (isGrounded)
+        if (isGrounded && !isGrappling)
         {
             rb.drag = groundDrag;
         }
@@ -354,15 +357,17 @@ public class ThirdPersonMovement : MonoBehaviour
 
 
     #region Grappling Function
-    void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
+    public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
         isGrappling = true;
-        rb.velocity = gT.CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+        velocityToSet = gT.CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+
+        Invoke(nameof(SetVelocity), 0.1f);
     }
 
     private void SetVelocity()
     {
-
+        rb.velocity = velocityToSet;
     }
     #endregion
 
