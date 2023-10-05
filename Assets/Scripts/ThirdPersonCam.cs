@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.HID;
+using static ThirdPersonMovement;
 
 public class ThirdPersonCam : MonoBehaviour
 {
@@ -38,7 +39,34 @@ public class ThirdPersonCam : MonoBehaviour
     [SerializeField]
     private float playerHeight;
 
+    [Header("Camera Control")]
+    public CameraStyle currentStyle;
 
+    [SerializeField]
+    private GameObject thirdPersonCam;
+    [SerializeField]
+    private GameObject combatCam;
+    [SerializeField]
+    private GameObject topDownCam;
+    [SerializeField]
+    public GameObject aimCursor;
+
+    public enum CameraStyle
+    {
+        Basic,
+        Combat,
+        Topdown
+    }
+
+    // we need to set up five player state
+    public enum MovementState
+    {
+        freeze,
+        walking,
+        running,
+        grappling,
+        air
+    }
     private void OnEnable()
     {
         movementControl.action.Enable();
@@ -67,7 +95,7 @@ public class ThirdPersonCam : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
-        
+
     }
 
     // Update is called once per frame
@@ -75,12 +103,14 @@ public class ThirdPersonCam : MonoBehaviour
     {
         GroundCheck();
         MoveControl();
-        SpeedControl();
+        CameraControl();
+        
     }
 
     private void FixedUpdate()
     {
         Drag(20);
+        SpeedControl();
     }
 
     #region Player Movement
@@ -110,7 +140,7 @@ public class ThirdPersonCam : MonoBehaviour
         Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         //limit velocity if needed
-        if(flatVel.magnitude > moveSpeed)
+        if (flatVel.magnitude > moveSpeed)
         {
             Vector3 limitedVel = flatVel.normalized * moveSpeed;
             rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
@@ -118,6 +148,7 @@ public class ThirdPersonCam : MonoBehaviour
     }
     #endregion
 
+    #region Ground Check and Drag 
     void GroundCheck()
     {
         isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.01f, groundLayer);
@@ -136,5 +167,49 @@ public class ThirdPersonCam : MonoBehaviour
         }
 
     }
+    #endregion
+    
+    #region Camera Control
+    void CameraControl()
+    {
+        //switch camera by press button
+        if (aimControl.action.IsPressed())
+        {
+            SwitchCameraStyle(CameraStyle.Combat);
+            Debug.Log("combat camera");
+        }
+        else
+        {
+            SwitchCameraStyle(CameraStyle.Basic);
+            Debug.Log("basic camera");
+        }
+    }
+    void SwitchCameraStyle(CameraStyle newStyle)
+    {
+        //we want to switch the camera during the gameplay
+        combatCam.SetActive(false);
+        thirdPersonCam.SetActive(false);
+        topDownCam.SetActive(false);
+        aimCursor.SetActive(false);
 
+        if (newStyle == CameraStyle.Basic)
+        {
+            thirdPersonCam.SetActive(true);
+        }
+
+        if (newStyle == CameraStyle.Combat)
+        {
+            combatCam.SetActive(true);
+            aimCursor.SetActive(true);
+        }
+
+        if (newStyle == CameraStyle.Topdown)
+        {
+            topDownCam.SetActive(true);
+        }
+
+        currentStyle = newStyle;
+    }
+    #endregion
 }
+

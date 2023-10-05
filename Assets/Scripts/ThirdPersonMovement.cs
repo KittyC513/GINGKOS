@@ -29,6 +29,7 @@ public class ThirdPersonMovement : MonoBehaviour
     [SerializeField]
     private InputActionReference aimControl;
 
+
     [Header("Movement Variables")]
     [SerializeField]
     private float moveSpeed;
@@ -44,7 +45,10 @@ public class ThirdPersonMovement : MonoBehaviour
     private float airMyltiplier;
     [SerializeField]
     private MovementState state;
-
+    [SerializeField]
+    private Vector3 inputDir;
+    [SerializeField]
+    private Vector3 combatDir;
 
 
 
@@ -65,6 +69,12 @@ public class ThirdPersonMovement : MonoBehaviour
     public GameObject combatCam;
     public GameObject topDownCam;
     public GameObject aimCursor;
+
+    [Header("Grapple")]
+    [SerializeField]
+    private GrapplingTail gT;
+    [SerializeField]
+    private bool isGrappling;
 
     public bool isFreeze;
 
@@ -89,6 +99,7 @@ public class ThirdPersonMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+       
         //turn off the mouse cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -98,6 +109,8 @@ public class ThirdPersonMovement : MonoBehaviour
 
         player1Cam = Camera.main.transform;
         faceDir = Vector3.zero;
+
+        gT = GetComponent<GrapplingTail>();
     }
 
     private void OnEnable()
@@ -162,6 +175,8 @@ public class ThirdPersonMovement : MonoBehaviour
         if (aimControl.action.IsPressed())
         {
             SwitchCameraStyle(CameraStyle.Combat);
+            moveSpeed = 3;
+            rotationSpeed = 3;
             Debug.Log("combat camera");
         } else
         {
@@ -176,8 +191,8 @@ public class ThirdPersonMovement : MonoBehaviour
     void MovePlayer()
     {
         //rotate orientation
-        //Vector3 viewDir = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
-        //orientation.forward = viewDir.normalized;
+        Vector3 viewDir = player1Cam.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
+        orientation.forward = viewDir.normalized;
        
         move.y = 0;
 
@@ -185,20 +200,22 @@ public class ThirdPersonMovement : MonoBehaviour
         if (currentStyle == CameraStyle.Basic)
         {
             //move = player1Cam.forward * move.z + player1Cam.right * move.x;
-            move = player1Cam.forward * move.z + player1Cam.right * move.x;
-
-            if (move != Vector3.zero)
+            //move = player1Cam.forward * move.z + player1Cam.right * move.x;
+            inputDir = orientation.forward * move.z + orientation.right * move.x;
+            if (inputDir != Vector3.zero)
             {
-                playerObj.forward = Vector3.Slerp(playerObj.forward, move.normalized, Time.deltaTime * rotationSpeed);
+                playerObj.forward = Vector3.Slerp(playerObj.forward, -inputDir.normalized, Time.deltaTime * rotationSpeed);
             }
-        }else if(currentStyle == CameraStyle.Combat)
+        }
+        else if(currentStyle == CameraStyle.Combat)
         {
-            Vector3 dirToCombatLookAt = combatLookAt.position - new Vector3(transform.position.x, combatLookAt.position.y, transform.position.z);
+            Vector3 dirToCombatLookAt = player1Cam.position - new Vector3(transform.position.x, combatLookAt.position.y, transform.position.z);
             orientation.forward = dirToCombatLookAt.normalized;
-
+         
+            combatDir  = orientation.forward * move.z + orientation.right * move.x;
             //player1Cam.forward = dirToCombatLookAt.normalized;
-        
-            playerObj.forward = dirToCombatLookAt.normalized;
+
+            playerObj.forward = -dirToCombatLookAt.normalized;
             Debug.Log("dirToCombatLookAt" + dirToCombatLookAt);
             Debug.Log("playerObj" + playerObj.forward);
 
@@ -210,11 +227,18 @@ public class ThirdPersonMovement : MonoBehaviour
 
         if (isGrounded)
         {
-            rb.AddForce(move.normalized * moveSpeed * 10f, ForceMode.Force);
+            if(currentStyle == CameraStyle.Basic)
+            {
+                rb.AddForce(-inputDir.normalized * moveSpeed * 10f, ForceMode.Force);
+            } else if(currentStyle == CameraStyle.Combat)
+            {
+                rb.AddForce(-combatDir.normalized * moveSpeed * 10f, ForceMode.Force);
+            }
+
         }
         else
         {
-            rb.AddForce(move.normalized * moveSpeed * 10f *airMyltiplier, ForceMode.Force);
+            rb.AddForce(-inputDir.normalized * moveSpeed * 10f *airMyltiplier, ForceMode.Force);
         }
 
     }
@@ -298,6 +322,8 @@ public class ThirdPersonMovement : MonoBehaviour
     #region Speed Control
     void SpeedControl()
     {
+        if (isGrappling) return;
+
         Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         //set up a max speed
@@ -328,8 +354,16 @@ public class ThirdPersonMovement : MonoBehaviour
 
 
     #region Grappling Function
+    void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
+    {
+        isGrappling = true;
+        rb.velocity = gT.CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+    }
 
+    private void SetVelocity()
+    {
 
+    }
     #endregion
 
 }

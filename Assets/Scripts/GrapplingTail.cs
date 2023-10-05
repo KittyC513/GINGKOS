@@ -66,13 +66,15 @@ public class GrapplingTail : MonoBehaviour
             StartGrapple();
         }else if (!grapplingControl.action.triggered)
         {
-            StopGrapple();
+            //StopGrapple();
         }
 
         if(grapplingCd > 0)
         {
             grapplingCd -= Time.deltaTime;
         }
+
+
     }
 
     private void LateUpdate()
@@ -97,6 +99,7 @@ public class GrapplingTail : MonoBehaviour
             grapplePoint = hit.point;
 
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
+
         }
         else
         {
@@ -106,7 +109,9 @@ public class GrapplingTail : MonoBehaviour
 
         lr.enabled = true;
         lr.SetPosition(1, grapplePoint);
-        
+
+
+
     }
 
     void ExecuteGrapple()
@@ -125,4 +130,15 @@ public class GrapplingTail : MonoBehaviour
         lr.enabled = false;
     }
 
+
+    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
+    {
+        float gravity = Physics.gravity.y;
+        float displacementY = endPoint.y - startPoint.y;
+        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
+
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity) + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+        return velocityXZ + velocityY;
+    }
 }
