@@ -9,15 +9,13 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    [Header ("Movement Variables")]
+    [Header("Movement Variables")]
     [SerializeField]
-    private InputActionReference movementControl;
-    [SerializeField]
-    private InputActionReference jumpControl;
-    [SerializeField]
-    private InputActionReference runControl;
-    [SerializeField]
-    private InputActionReference aimControl;
+    private PlayerControls playerControls;
+    private InputAction movementControl;
+    private InputAction jumpControl;
+    private InputAction runControl;
+
     [SerializeField]
     private float playerWalkSpeed = 8.5f;
     [SerializeField]
@@ -59,9 +57,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float jumpSpeed;
     [SerializeField]
-    private float jumpForce = 7;
+    private float jumpForce = 15;
     [SerializeField]
-    private float jumpDeaccel = 0.5f;
+    private float jumpDeaccel = 12f;
+    [SerializeField]
+    private float minJumpForce = 6;
+    [SerializeField]
+    private float maxFall = -35;
 
     private bool isJumping = false;
 
@@ -69,7 +71,9 @@ public class PlayerController : MonoBehaviour
     [Space, Header("Other")]
     [SerializeField]
     private Animator playerAnim;
-   
+    private bool isOnCircle = false;
+    private GameObject activeCircle;
+
     [SerializeField]
     enum debugMode { off, on }
     [SerializeField]
@@ -83,79 +87,150 @@ public class PlayerController : MonoBehaviour
 
     [Space, Header("Player Status")]
     private bool isWalking;
+    public enum playerState { idle, walking, running, jumping, airborne, summoning }
+    public playerState pState;
 
     [Space, Header("Grappling Variables")]
     public Transform tail;
 
-    [Space, Header("Aiming Variables")]
-    public GameObject mainCamera;
-    public GameObject aimCamera;
-    public GameObject aimCursor;
 
 
+    private void Awake()
+    {
+        playerControls = new PlayerControls();
+    }
     private void OnEnable()
     {
-        movementControl.action.Enable();
-        jumpControl.action.Enable();
-        runControl.action.Enable();
-        aimControl.action.Enable();
+        //setup the controls in a way that doesn't require a new serialization for each input we need
+        //we now just grab the whole input asset and get the individual components 
+        movementControl = playerControls.Player.Movement;
+        movementControl.Enable();
+        jumpControl = playerControls.Player.Jump;
+        jumpControl.Enable();
+        runControl = playerControls.Player.Run;
+        runControl.Enable();
+
+        
+        
     }
 
     private void OnDisable()
     {
-        movementControl.action.Disable();
-        jumpControl.action.Disable();
-        runControl.action.Disable();
-        aimControl.action.Disable();
+        movementControl.Disable();
+        jumpControl.Disable();
+        runControl.Disable();
     }
-
 
     private void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
         player1Cam = Camera.main.transform;
         faceDir = Vector3.zero;
-
-        mainCamera.SetActive(true);
-        aimCamera.SetActive(false);
-        aimCursor.SetActive(false);
+        Application.targetFrameRate = 60;
     }
 
     void Update()
     {
-        playerAnim.SetFloat("speed", currentSpeed);
 
-        if (isGrounded && !isJumping)
+        if (pState != playerState.summoning)
         {
             Move();
-            if(currentSpeed <= 0)
-            {
-                isWalking = false;
-            }
+            Jump();
         }
-        if (aimControl.action.IsPressed())
-        {
-            mainCamera.SetActive(false);
-            aimCamera.SetActive(true);
-            aimCursor.SetActive(true);
-        }
-        else
-        {
-            mainCamera.SetActive(true);
-            aimCamera.SetActive(false);
-            aimCursor.SetActive(false);
-        }
-
-        Jump();
+      
+        ReadInput();
+        UpdateAnimation();
         CheckGrounded();
         ApplySpeed();
         DebugFunctions();
+        UpdateStates();
     }
 
     private void FixedUpdate()
     {
         Rotate();
     }
+
+    private void ReadInput()
+    {
+        //access new input system, add xbox input 
+        movement = movementControl.ReadValue<Vector2>();
+    }
+
+    private void UpdateAnimation()
+    {
+        //set our speed value in our animator
+        playerAnim.SetFloat("speed", currentSpeed);
+        //set our summoning state in our animator
+        //playerAnim.SetBool("summoning", pState == playerState.summoning);
+    }
+
+    #region State Machine
+    private void UpdateStates()
+    {
+        //A player state machine
+        //changes state based on what the player is doing
+        //this can be used to do certain things only when the player is doing certain actions
+        //keeps everything in one place rather than a ton of bools
+        if (isOnCircle)
+        {
+            pState = playerState.summoning;
+        }
+        else if (currentSpeed <= 0 && isGrounded)
+        {
+            pState = playerState.idle;
+        }
+        else if (!isGrounded && isJumping)
+        {
+            pState = playerState.jumping;
+        }
+        else if (!isGrounded)
+        {
+            //if we were just grounded and now we're airborne and we aren't jumping set our speed to 0
+            //so we dont fall like a brick
+            if (pState != playerState.airborne && pState != playerState.jumping)
+            {
+                jumpSpeed = 0;
+            }
+            pState = playerState.airborne;
+        }
+        else if (currentSpeed > playerWalkSpeed)
+        {
+            pState = playerState.running;
+        }
+        else if (currentSpeed <= playerWalkSpeed)
+        {
+            pState = playerState.walking;
+        }
+
+        //a switch function to make things run based on our current state
+        switch (pState)
+        {
+            case playerState.idle:
+                break;
+            case playerState.walking:
+                break;
+            case playerState.running:
+                break;
+            case playerState.jumping:
+                break;
+            case playerState.airborne:
+                break;
+            case playerState.summoning:
+                //set our direction towards the summoning circle and slowly move the player to it
+                if (activeCircle != null)
+                {
+                    faceDir = activeCircle.transform.position - transform.position;
+                    faceDir = faceDir.normalized;
+                    currentSpeed = playerWalkSpeed;
+
+                    playerVelocity = new Vector3(faceDir.x * currentSpeed, 0, faceDir.z * currentSpeed);
+                }
+                break;
+        }
+    }
+
+    #endregion
 
     #region Debug
     private void DebugFunctions()
@@ -185,14 +260,14 @@ public class PlayerController : MonoBehaviour
         if (Physics.SphereCast(groundCheck.position, groundCheckRadius, Vector3.down, out hit, groundCheckDist, groundLayer))
         {
             isGrounded = true;
-            isJumping = false;
-            Debug.Log("isGrounded" + isGrounded);
+            
+            //Debug.Log("isGrounded" + isGrounded);
 
         }
         else
         {
             isGrounded = false;
-            Debug.Log("isGrounded" + isGrounded);
+            //Debug.Log("isGrounded" + isGrounded);
             playerVelocity.y += gravityValue * Time.deltaTime;
 
         }
@@ -203,8 +278,7 @@ public class PlayerController : MonoBehaviour
     #region Player Movement
     void Move()
     {
-        //access new input system, add xbox input 
-        movement = movementControl.action.ReadValue<Vector2>();
+       
         Vector3 move = new Vector3(movement.x, 0, movement.y);
        
         move = player1Cam.forward * move.z + player1Cam.right * move.x;
@@ -222,7 +296,7 @@ public class PlayerController : MonoBehaviour
         }
         
         //if we are reading the run button, start running
-        if (runControl.action.ReadValue<float>() == 1)
+        if (runControl.ReadValue<float>() == 1)
         {
             running = true;
         }
@@ -283,10 +357,22 @@ public class PlayerController : MonoBehaviour
 
         if (move != Vector3.zero)
         {
-            transform.forward = move;
+            //transform.forward = move;
         }
-        isWalking = true;
+        
 
+        if (isGrounded && !isJumping)
+        {
+
+            if (currentSpeed <= 0)
+            {
+                isWalking = false;
+            }
+            else
+            {
+                isWalking = true;
+            }
+        }
 
     }
 
@@ -304,26 +390,38 @@ public class PlayerController : MonoBehaviour
     {
 
         //input is pressed and player is grounded, the jump can be triggered
-        if (jumpControl.action.triggered && isGrounded && !isWalking)
+        if (jumpControl.ReadValue<float>() == 1 && isGrounded)
         {
             //apply the initial jump force
             jumpSpeed = jumpForce;
             isJumping = true;
         }
 
-        if (isJumping)
+        //if we let go of the button while jumping cut off our jump speed by half
+        if (isJumping && jumpControl.ReadValue<float>() == 0 && jumpSpeed <= minJumpForce)
         {
-
+            Debug.Log(jumpSpeed);
+            if (jumpSpeed > 0)
+            {
+                jumpSpeed = jumpSpeed / 2;
+            }
+            
+            isJumping = false;
         }
+
         //apply gravity
-        if(jumpSpeed > -20)
+        if(jumpSpeed > maxFall)
         {
-            jumpSpeed += Physics.gravity.y * Time.deltaTime;
+            jumpSpeed += -jumpDeaccel * Time.deltaTime;
         }
         else
         {
-            jumpSpeed = -20;
+            jumpSpeed = maxFall;
         }
+
+
+        //if we have started to move downwards we are not longer jumping
+        if (jumpSpeed <= 0) isJumping = false;
 
 
 
@@ -335,12 +433,40 @@ public class PlayerController : MonoBehaviour
     #region Player facing direction
     void Rotate()
     {
-        if(movement!= Vector2.zero)
+        if(movement!= Vector2.zero || pState == playerState.summoning)
         {
             float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + player1Cam.eulerAngles.y;
             Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
         }
     }
+    #endregion
+
+    #region Public Functions
+
+    public bool ReadActionButton()
+    {
+        if (runControl.ReadValue<float>() == 1) return true;
+        else return false;
+    }
+
+    public void OnSummoningEnter(GameObject circle)
+    {
+        //player can't move unless they let go of running
+        //player is now in the summoning animation
+        //the summoning circle is active
+        //move player towards
+        isOnCircle = true;
+        activeCircle = circle;
+    }
+
+    public void OnSummoningExit()
+    {
+        //player can now move and summoning circle is not active
+        //player is no longer in the summoning animation
+        isOnCircle = false;
+        activeCircle = null;
+    }
+
     #endregion
 }
