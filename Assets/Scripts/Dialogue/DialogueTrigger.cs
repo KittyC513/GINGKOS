@@ -8,15 +8,20 @@ public class DialogueTrigger : MonoBehaviour
 {
     public DialogueRunner dialogueRunner;
     public bool hasTalkedBefore = false;
+    public GameObject splitScreen;
 
-    public virtual void InterruptLine(LocalizedLine dialogueLine, Action onDialogueLineFinished);
-
+    private void Start()
+    {
+        splitScreen.SetActive(false);
+    }
+    
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.E) && hasTalkedBefore == false)
         {
             dialogueRunner.StartDialogue("WhatPromotion");
             hasTalkedBefore = true;
+            splitScreen.SetActive(true);
         }
         else
         {
