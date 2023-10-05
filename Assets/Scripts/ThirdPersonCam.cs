@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.HID;
 
 public class ThirdPersonCam : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class ThirdPersonCam : MonoBehaviour
     public Transform player;
     public Transform playerObj;
     public Rigidbody rb;
-    public Transform player1Cam;
+    public Transform orientation;
     [SerializeField]
     private float rotationSpeed;
 
@@ -26,6 +27,8 @@ public class ThirdPersonCam : MonoBehaviour
 
     [Header("Movement")]
     Vector3 move;
+    [SerializeField]
+    private float moveSpeed;
 
     [Header("Ground Check")]
     [SerializeField]
@@ -33,11 +36,7 @@ public class ThirdPersonCam : MonoBehaviour
     [SerializeField]
     private bool isGrounded;
     [SerializeField]
-    private float groundDrag;
-    [SerializeField]
     private float playerHeight;
-
-
 
 
     private void OnEnable()
@@ -63,7 +62,6 @@ public class ThirdPersonCam : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        player1Cam = Camera.main.transform;
 
         //freeze the rigidbody's rotation
         rb = GetComponent<Rigidbody>();
@@ -75,9 +73,59 @@ public class ThirdPersonCam : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        MovementInput();
-        groundCheck();
+        GroundCheck();
+        MoveControl();
+        SpeedControl();
+    }
 
+    private void FixedUpdate()
+    {
+        Drag(20);
+    }
+
+    #region Player Movement
+    void MoveControl()
+    {
+        //calculate the direction from player.cam to player
+        Vector3 viewDir = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
+        orientation.forward = viewDir.normalized;
+
+        // access player input value
+        Vector2 movement = movementControl.action.ReadValue<Vector2>();
+        move = new Vector3(movement.x, 0, movement.y);
+
+        //do the rotation
+        Vector3 inputDir = orientation.forward * move.z + orientation.right * move.x;
+        if (inputDir != Vector3.zero)
+        {
+            playerObj.forward = Vector3.Slerp(playerObj.forward, -inputDir.normalized, Time.deltaTime * rotationSpeed);
+        }
+
+        //do the movement
+        rb.AddForce(-inputDir.normalized * moveSpeed * 10f, ForceMode.Force);
+    }
+
+    void SpeedControl()
+    {
+        Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+        //limit velocity if needed
+        if(flatVel.magnitude > moveSpeed)
+        {
+            Vector3 limitedVel = flatVel.normalized * moveSpeed;
+            rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
+        }
+    }
+    #endregion
+
+    void GroundCheck()
+    {
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.01f, groundLayer);
+        Debug.Log("isGrounded" + isGrounded);
+    }
+
+    void Drag(float groundDrag)
+    {
         if (isGrounded)
         {
             rb.drag = groundDrag;
@@ -89,39 +137,4 @@ public class ThirdPersonCam : MonoBehaviour
 
     }
 
-    private void FixedUpdate()
-    {
-        MoveFunction(3f);
-    }
-
-    #region Player Movement
-    void MovementInput()
-    {
-        Vector2 movement = movementControl.action.ReadValue<Vector2>();
-        move = new Vector3(movement.x, 0, movement.y);
-    }
-
-    void MoveFunction(float moveSpeed)
-    {
-        //always move forward the way the camera's looking
-        move = player1Cam.forward * move.z + player1Cam.right * move.x;
-        move.y = 0f;
-
-        //rotate player
-        playerObj.forward = Vector3.Slerp(playerObj.forward, move, Time.deltaTime * rotationSpeed);
-
-        //player movement 
-        rb.AddForce(move.normalized * moveSpeed * 10f, ForceMode.Force);
-    }
-
-    #endregion
-
-    #region Ground Check
-    void groundCheck()
-    {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer);
-
-    }
-
-    #endregion
 }

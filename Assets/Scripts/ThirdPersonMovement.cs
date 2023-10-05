@@ -176,8 +176,8 @@ public class ThirdPersonMovement : MonoBehaviour
     void MovePlayer()
     {
         //rotate orientation
-        Vector3 viewDir = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
-        orientation.forward = viewDir.normalized;
+        //Vector3 viewDir = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
+        //orientation.forward = viewDir.normalized;
        
         move.y = 0;
 
