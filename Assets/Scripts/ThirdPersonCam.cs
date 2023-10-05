@@ -6,10 +6,10 @@ using UnityEngine.InputSystem;
 public class ThirdPersonCam : MonoBehaviour
 {
     [Header("References")]
-    public Transform orientation;
     public Transform player;
     public Transform playerObj;
     public Rigidbody rb;
+    public Transform player1Cam;
 
     [SerializeField]
     private float rotationSpeed;
@@ -43,30 +43,26 @@ public class ThirdPersonCam : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //set the cursor to invisible and be locked
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        player1Cam = Camera.main.transform;
         
     }
 
     // Update is called once per frame
     void Update()
     {
-        //rotate orientation
-        Vector3 viewDir = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
-        //Vector3 viewDir = player.position - new Vector3(transform.position.x, transform.position.y, player.position.z);
-        Debug.Log(viewDir.normalized);
-        orientation.forward = viewDir.normalized;
-
-        //rotate player object
+        //read the input from new input system 
         Vector2 movement = movementControl.action.ReadValue<Vector2>();
-        float horizontalInput = movement.x;
-        float verticalInput = movement.y;
-        Vector3 inputDir = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        Vector3 move = new Vector3(movement.x, 0, movement.y);
 
-        if(inputDir != Vector3.zero)
-        {
-            playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir.normalized, Time.deltaTime * rotationSpeed);
-        }
+        //we want player move forward according to camera's direction
+        move = player1Cam.forward * move.z + player1Cam.right * move.x;
+        move.y = 0f;
+
+        playerObj.forward = Vector3.Slerp(playerObj.forward, move.normalized, Time.deltaTime * rotationSpeed);
 
     }
 }
