@@ -12,9 +12,11 @@ public class TestPickDrop : MonoBehaviour
     private Transform itemContainer;
 
     private ObjectGrabbable objectGrabbable;
+    [SerializeField]
+    private bool slotFull;
 
-    public CharacterInventory cI;
- 
+
+
 
     // Start is called before the first frame update
 
@@ -33,6 +35,7 @@ public class TestPickDrop : MonoBehaviour
                     {
                         //transform the item
                         objectGrabbable.Grab(itemContainer);
+                    
 
                     }
 
@@ -42,6 +45,7 @@ public class TestPickDrop : MonoBehaviour
             {
                 objectGrabbable.Drop();
                 objectGrabbable = null;
+
             }
             
         }

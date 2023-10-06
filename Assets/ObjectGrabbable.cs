@@ -12,6 +12,8 @@ public class ObjectGrabbable : MonoBehaviour
     public GameObject player;
     public Transform playerDir;
 
+    public Item item;
+
 
     private void Awake()
     {
@@ -29,6 +31,9 @@ public class ObjectGrabbable : MonoBehaviour
         rb.isKinematic = true;
         bC.enabled = false;
 
+        InventoryManager.Instance.Add(item);
+
+
     }
 
     private void FixedUpdate()
@@ -39,6 +44,8 @@ public class ObjectGrabbable : MonoBehaviour
             //smooth moving
             Vector3 newPosition = Vector3.Lerp(transform.position, objectGrabpo.position, Time.deltaTime * lerpspeed); ;
             rb.MovePosition(newPosition);
+
+
         }
     }
 
@@ -57,5 +64,7 @@ public class ObjectGrabbable : MonoBehaviour
 
         float random = Random.Range(-1, 1);
         rb.AddTorque(new Vector3(random, random, random));
+
+        InventoryManager.Instance.Remove(item);
     }
 }
