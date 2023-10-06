@@ -4,63 +4,44 @@ using UnityEngine;
 
 public class TestPickDrop : MonoBehaviour
 {
-    public GameObject item;
-    public Transform itemParent;
-    bool isPicked;
+    [SerializeField]
+    private LayerMask pickableMask;
+    [SerializeField]
+    private Transform player;
+    [SerializeField]
+    private Transform itemContainer;
 
+    private ObjectGrabbable objectGrabbable;
 
 
     // Start is called before the first frame update
-    void Start()
-    {
-        item.GetComponent<Rigidbody>().isKinematic = true;
-
-    }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.F))
+        //press "E" to pick the item when player facing the pickable items
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            Drop();
+            if(objectGrabbable == null)
+            {
+                float pickDistance = 2f;
+                if (Physics.Raycast(player.position, player.forward, out RaycastHit raycastHit, pickDistance, pickableMask))
+                {
+                    if (raycastHit.transform.TryGetComponent(out objectGrabbable))
+                    {
+                        //transform the item
+                        objectGrabbable.Grab(itemContainer);
+                    }
+
+                }
+            }
+            else
+            {
+                objectGrabbable.Drop();
+                objectGrabbable = null;
+            }
+            
         }
-
-        if (isPicked)
-        {
-            item.transform.position = itemParent.transform.position;
-        }
-    }
-    void Pickup()
-    {
-        item.GetComponent<Rigidbody>().isKinematic = true;
-
-        item.transform.position = itemParent.transform.position;
-        item.transform.rotation = itemParent.transform.rotation;
-
-        item.GetComponent<BoxCollider>().enabled = false;
-
-        item.transform.SetParent(itemParent);
-
-        isPicked = true;
-
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if(other.gameObject.tag == "Player")
-        {
-            Pickup();
-            Debug.Log("Pick up");
-        }
-    }
-
-
-    void Drop()
-    {
-        itemParent.DetachChildren();
-        item.transform.eulerAngles = new Vector3(item.transform.position.x, item.transform.position.z, item.transform.position.y);
-        item.GetComponent<Rigidbody>().isKinematic = false;
-        item.GetComponent<BoxCollider>().enabled = true;
     }
 
 }
