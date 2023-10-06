@@ -13,6 +13,8 @@ public class TestPickDrop : MonoBehaviour
 
     private ObjectGrabbable objectGrabbable;
 
+    public CharacterInventory cI;
+ 
 
     // Start is called before the first frame update
 
@@ -31,6 +33,7 @@ public class TestPickDrop : MonoBehaviour
                     {
                         //transform the item
                         objectGrabbable.Grab(itemContainer);
+
                     }
 
                 }

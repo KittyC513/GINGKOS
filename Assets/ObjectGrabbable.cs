@@ -12,6 +12,7 @@ public class ObjectGrabbable : MonoBehaviour
     public GameObject player;
     public Transform playerDir;
 
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
