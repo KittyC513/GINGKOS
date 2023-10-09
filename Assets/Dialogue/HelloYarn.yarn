@@ -2,11 +2,17 @@
 tags: 
 position: -332,-225
 ---
+<<DemonP1Show>>
 Shmink:Did you hear that I'm up for a new promotion? #line:0a66573 
+<<DemonP2Show>>
 Shmonk:...What promotion? #line:02f9e96 
-Shmink:The Devil's got their eye on me, they put me up for a promotion if I do well in my employee evaluation! #line:0bdd3c9 
+<<DemonP1Show>>
+Shmink:The Devil's got their eye on me, they put me up for a promotion if I do well in my employee evaluation! #line:0bdd3c9
+<<DemonP2Show>> 
 Shmonk:You're joking. I'm up for the same promotion. #line:0dbcf8c 
+<<DemonP1Show>>
 Shmonk:This is so typical! #line:0f41f51 
+<<DemonP2Show>>
 Shmonk:Well... at least the competition won't be a challenge. #line:0f5de84 
 -> You're a dick! #line:00d8aad 
     <<jump Dick>>
@@ -18,6 +24,7 @@ Shmink:Shmonk! You're going to be my fifteenth reason. I have three hairs becaus
 title: Dick
 position: -211,112
 ---
+<<DemonAllShow>>
 Shmink:You're a dick! #line:027a6c1 
 Shmonk:Oh, come on. This is what we do, we have playful banter! #line:0cba036 
 Shmonk:Besides, I'll look the other way if you decide to... cheat or something. #line:0eba4b3 
@@ -30,6 +37,7 @@ Shmonk:Besides, I'll look the other way if you decide to... cheat or something. 
 title: Loathe
 position: -461,111
 ---
+<<DemonAllShow>>
 Shmink:I loathe you. #line:06112c5 
 Shmonk:Oh, come on. This is what we do, we have playful banter! #line:06fbcb3 
 Shmonk:Besides, I'll look the other way if you decide to... cheat or something. #line:02e2abf 

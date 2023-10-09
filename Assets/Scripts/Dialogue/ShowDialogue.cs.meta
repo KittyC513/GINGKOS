@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f1719568aea9d694781bd86428f4e211
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - DemonAll: {instanceID: 0}
+  - DemonP1: {instanceID: 0}
+  - DemonP2: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

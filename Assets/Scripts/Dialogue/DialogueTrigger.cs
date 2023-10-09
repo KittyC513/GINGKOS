@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,13 @@ public class DialogueTrigger : MonoBehaviour
     public bool hasTalkedBefore = false;
     public GameObject splitScreen;
 
+    List<string> nodeNames = new List<string>
+    {
+        "WhatPromotion",
+        "Dick",
+        "Loathe"
+    };
+
     private void Start()
     {
         splitScreen.SetActive(false);
@@ -19,7 +27,8 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E) && hasTalkedBefore == false)
         {
-            dialogueRunner.StartDialogue("WhatPromotion");
+            PlayRandomDiaglogue();
+            //dialogueRunner.StartDialogue("WhatPromotion");
             hasTalkedBefore = true;
             splitScreen.SetActive(true);
         }
@@ -33,7 +42,9 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E) && hasTalkedBefore == true)
         {
-            dialogueRunner.StartDialogue("Repeat");
+            dialogueRunner.Stop();
+            //dialogueRunner.StartDialogue("Repeat");
+            PlayRandomDiaglogue();
         }
     }
 
@@ -43,5 +54,12 @@ public class DialogueTrigger : MonoBehaviour
         {
             
         }
+    }
+
+    public void PlayRandomDiaglogue()
+    {
+        System.Random rnd = new System.Random();
+        int index = rnd.Next(nodeNames.Count);
+        dialogueRunner.StartDialogue(nodeNames[index]);
     }
 }
