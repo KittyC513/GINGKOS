@@ -149,11 +149,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5207812549975945481, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.0000000038451993
+      value: 0.000000003845201
       objectReference: {fileID: 0}
     - target: {fileID: 5207812549975945481, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -9.160681e-10
+      value: -9.160685e-10
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550111854800, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_Layer
@@ -273,15 +273,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550968950800, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.2669336
+      value: 0.26693356
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550968950800, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -3.4238033e-15
+      value: 0.000000028720944
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550968950800, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 1.836517e-15
+      value: -0.00000000795524
       objectReference: {fileID: 0}
     - target: {fileID: 5207812550968950803, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
       propertyPath: m_Layer
@@ -368,7 +368,7 @@ MonoBehaviour:
   m_DefaultControlScheme: 
   m_DefaultActionMap: Cube
   m_SplitScreenIndex: -1
-  m_Camera: {fileID: 1391529957}
+  m_Camera: {fileID: 0}
 --- !u!4 &357464288476486498 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5207812550951262514, guid: 5ed22e30ab14b4141bf011803fd78f97, type: 3}
