@@ -2,15 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Cinemachine;
 
 public class TestCube : MonoBehaviour
 {
     Vector2 i_movement;
     float moveSpeed = 10f;
+    [SerializeField]
+    private List<LayerMask> playerLayers;
+    private List<PlayerInput> players = new List<PlayerInput>();
+
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -41,4 +46,17 @@ public class TestCube : MonoBehaviour
         Debug.Log("Moving");
     }
 
+    void AddPlayer(PlayerInput player)
+    {
+        players.Add(player);
+
+        Transform playerParent = player.transform.parent;
+
+        int layerToAdd = (int)Mathf.Log(playerLayers[players.Count - 1].value, 2);
+
+        playerParent.GetComponentInChildren<CinemachineBrain>().gameObject.layer = layerToAdd;
+        playerParent.GetComponentInChildren<Camera>().cullingMask |= 1 << layerToAdd;
+
+
+    }
 }
